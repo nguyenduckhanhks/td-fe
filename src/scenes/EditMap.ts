@@ -3,10 +3,6 @@ import api from "../services/api";
 import Constants from "../constant";
 import { SpriteButton, TextButton } from "./components";
 
-const SIZE_WIDTH = 32;
-const SIZE_HEIGHT = 20;
-const CELL_WIDTH = 40;
-
 export class EditMapScene extends Phaser.Scene {
   private customerInfo: any;
   private assets: any[] = [];
@@ -22,6 +18,17 @@ export class EditMapScene extends Phaser.Scene {
   }
 
   async init() {
+    if (this.assets) {
+      this.assets.map((ass) => ass.destroy());
+    }
+    this.customerInfo = null;
+    this.assets = [];
+    this.mapIdInput = 6;
+    this.mapIdTextUI = null;
+    this.selectMapCell = null;
+    this.selectTower = null;
+    this.towers = [];
+    this.mapAssets = [];
     try {
       const token = sessionStorage.getItem("token");
       if (token) {
@@ -50,6 +57,10 @@ export class EditMapScene extends Phaser.Scene {
       "assets/images/UI/main page/2_0013_Layer-11.png"
     );
     this.load.image("delete", "assets/images/UI/main page/2_0009_Layer-13.png");
+    this.load.image(
+      "err-btn-bg",
+      "assets/images/UI/attacker/3_0003_Layer-14.png"
+    );
 
     // map
     this.load.image("target-cell", "assets/images/Map/Cuavao-anhsang.png");
@@ -99,33 +110,34 @@ export class EditMapScene extends Phaser.Scene {
     // background
     const background = this.add
       .sprite(
-        (SIZE_WIDTH * CELL_WIDTH) / 2,
-        (SIZE_HEIGHT * CELL_WIDTH) / 2,
+        (Constants.SIZE_WIDTH * Constants.CELL_WIDTH) / 2,
+        (Constants.SIZE_HEIGHT * Constants.CELL_WIDTH) / 2,
         "background"
       )
       .setInteractive();
-    background.displayWidth = SIZE_WIDTH * CELL_WIDTH;
-    background.displayHeight = SIZE_HEIGHT * CELL_WIDTH;
+    background.displayWidth = Constants.SIZE_WIDTH * Constants.CELL_WIDTH;
+    background.displayHeight = Constants.SIZE_HEIGHT * Constants.CELL_WIDTH;
     this.assets.push(background);
     const backgroundBorder = this.add
       .sprite(
-        (SIZE_WIDTH * CELL_WIDTH) / 2,
-        (SIZE_HEIGHT * CELL_WIDTH) / 2,
+        (Constants.SIZE_WIDTH * Constants.CELL_WIDTH) / 2,
+        (Constants.SIZE_HEIGHT * Constants.CELL_WIDTH) / 2,
         "background-border"
       )
       .setInteractive();
-    backgroundBorder.displayWidth = SIZE_WIDTH * CELL_WIDTH;
-    backgroundBorder.displayHeight = SIZE_HEIGHT * CELL_WIDTH;
+    backgroundBorder.displayWidth = Constants.SIZE_WIDTH * Constants.CELL_WIDTH;
+    backgroundBorder.displayHeight =
+      Constants.SIZE_HEIGHT * Constants.CELL_WIDTH;
     this.assets.push(backgroundBorder);
 
     // map cell
-    for (let i = 0; i < SIZE_WIDTH; i++) {
-      for (let j = 0; j < SIZE_HEIGHT; j++) {
+    for (let i = 0; i < Constants.SIZE_WIDTH; i++) {
+      for (let j = 0; j < Constants.SIZE_HEIGHT; j++) {
         const cell = new SpriteButton({
-          x: i * CELL_WIDTH + CELL_WIDTH / 2,
-          y: j * CELL_WIDTH + CELL_WIDTH / 2,
-          width: CELL_WIDTH,
-          heigh: CELL_WIDTH,
+          x: i * Constants.CELL_WIDTH + Constants.CELL_WIDTH / 2,
+          y: j * Constants.CELL_WIDTH + Constants.CELL_WIDTH / 2,
+          width: Constants.CELL_WIDTH,
+          heigh: Constants.CELL_WIDTH,
           texture: "btn-bg",
           onClick: () => {},
           scene: this,
@@ -240,6 +252,7 @@ export class EditMapScene extends Phaser.Scene {
     this.assets.push(
       new TextButton({
         text: "Back",
+        texture: "err-btn-bg",
         x: 1460,
         y: 350,
         onClick: async () => {
@@ -249,15 +262,18 @@ export class EditMapScene extends Phaser.Scene {
       })
     );
     Constants.towers.map((tower, index) => {
-      const x = 1300 + ((3 * CELL_WIDTH) / 2) * (index % 7) + CELL_WIDTH / 2;
-      const y = 80 + ((3 * CELL_WIDTH) / 2) * Math.floor(index / 7);
+      const x =
+        1300 +
+        ((3 * Constants.CELL_WIDTH) / 2) * (index % 7) +
+        Constants.CELL_WIDTH / 2;
+      const y = 80 + ((3 * Constants.CELL_WIDTH) / 2) * Math.floor(index / 7);
 
       const towerBtn = new SpriteButton({
         x,
         y,
         texture: tower.image,
-        width: CELL_WIDTH,
-        heigh: CELL_WIDTH,
+        width: Constants.CELL_WIDTH,
+        heigh: Constants.CELL_WIDTH,
         onClick: () => {},
         scene: this,
       });
@@ -281,12 +297,12 @@ export class EditMapScene extends Phaser.Scene {
     const { mapData } = this.customerInfo.map;
     const mapWidth = Math.sqrt(mapData.size);
     const cvX = Math.ceil(
-      (this.selectMapCell.x - CELL_WIDTH / 2) / CELL_WIDTH -
-        (SIZE_WIDTH - mapWidth) / 2
+      (this.selectMapCell.x - Constants.CELL_WIDTH / 2) / Constants.CELL_WIDTH -
+        (Constants.SIZE_WIDTH - mapWidth) / 2
     );
     const cvY = Math.ceil(
-      (this.selectMapCell.y - CELL_WIDTH / 2) / CELL_WIDTH -
-        (SIZE_HEIGHT - mapWidth) / 2
+      (this.selectMapCell.y - Constants.CELL_WIDTH / 2) / Constants.CELL_WIDTH -
+        (Constants.SIZE_HEIGHT - mapWidth) / 2
     );
     this.towers.push({
       id: towerData.id,
@@ -305,11 +321,11 @@ export class EditMapScene extends Phaser.Scene {
       scene: this,
     });
     const deleteBtn = new SpriteButton({
-      x: this.selectMapCell.x + (3 * CELL_WIDTH) / 8,
-      y: this.selectMapCell.y - (3 * CELL_WIDTH) / 8,
+      x: this.selectMapCell.x + (3 * Constants.CELL_WIDTH) / 8,
+      y: this.selectMapCell.y - (3 * Constants.CELL_WIDTH) / 8,
       texture: "delete",
-      width: CELL_WIDTH / 4,
-      heigh: CELL_WIDTH / 4,
+      width: Constants.CELL_WIDTH / 4,
+      heigh: Constants.CELL_WIDTH / 4,
       onClick: () => {},
       scene: this,
     });
@@ -334,11 +350,13 @@ export class EditMapScene extends Phaser.Scene {
     const mapWidth = Math.sqrt(mapData.size);
     path.map((cell: any, index: number) => {
       const x =
-        Math.floor((SIZE_WIDTH - mapWidth) / 2 + cell[0]) * CELL_WIDTH +
-        CELL_WIDTH / 2;
+        Math.floor((Constants.SIZE_WIDTH - mapWidth) / 2 + cell[0]) *
+          Constants.CELL_WIDTH +
+        Constants.CELL_WIDTH / 2;
       const y =
-        Math.floor((SIZE_HEIGHT - mapWidth) / 2 + cell[1]) * CELL_WIDTH +
-        CELL_WIDTH / 2;
+        Math.floor((Constants.SIZE_HEIGHT - mapWidth) / 2 + cell[1]) *
+          Constants.CELL_WIDTH +
+        Constants.CELL_WIDTH / 2;
       if (index === 0) {
         // target-cell
         const targetCell = this.add
@@ -364,10 +382,12 @@ export class EditMapScene extends Phaser.Scene {
             cell,
             convert: [
               Math.ceil(
-                (x - CELL_WIDTH / 2) / CELL_WIDTH - (SIZE_WIDTH - mapWidth) / 2
+                (x - Constants.CELL_WIDTH / 2) / Constants.CELL_WIDTH -
+                  (Constants.SIZE_WIDTH - mapWidth) / 2
               ),
               Math.ceil(
-                (y - CELL_WIDTH / 2) / CELL_WIDTH - (SIZE_HEIGHT - mapWidth) / 2
+                (y - Constants.CELL_WIDTH / 2) / Constants.CELL_WIDTH -
+                  (Constants.SIZE_HEIGHT - mapWidth) / 2
               ),
             ],
           });

@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import {
   EditMapScene,
+  GamePlayScene,
+  HistoryScene,
   MainMenuScene,
   MapStagesScene,
   SetupStartGameScene,
@@ -22,7 +24,14 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: true,
     },
   },
-  scene: [MainMenuScene, EditMapScene, MapStagesScene, SetupStartGameScene],
+  scene: [
+    MainMenuScene,
+    EditMapScene,
+    MapStagesScene,
+    SetupStartGameScene,
+    GamePlayScene,
+    HistoryScene
+  ],
 };
 // eslint-disable-next-line import/no-anonymous-default-export
 export default new Phaser.Game(config);

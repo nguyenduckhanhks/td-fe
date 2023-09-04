@@ -27,6 +27,16 @@ export class MainMenuScene extends Phaser.Scene {
       },
       scene: this,
     },
+    {
+      text: "History",
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 200,
+      width: 300,
+      onClick: () => {
+        this.scene.start("history");
+      },
+      scene: this,
+    },
   ];
 
   constructor() {
@@ -34,6 +44,10 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   async init() {
+    if (this.assets) {
+      this.assets.map((ass) => ass.destroy());
+    }
+    this.assets = [];
     try {
       const token = sessionStorage.getItem("token");
       if (token) {
@@ -80,24 +94,20 @@ export class MainMenuScene extends Phaser.Scene {
   private createBackground() {
     // background
     const background = this.add
-      .sprite(
-        window.innerWidth / 2,
-        (window.innerHeight - 73) / 2,
-        "background"
-      )
+      .sprite(window.innerWidth / 2, window.innerHeight / 2, "background")
       .setInteractive();
     background.displayWidth = window.innerWidth;
-    background.displayHeight = window.innerHeight - 73;
+    background.displayHeight = window.innerHeight;
     this.assets.push(background);
     const backgroundBorder = this.add
       .sprite(
         window.innerWidth / 2,
-        (window.innerHeight - 73) / 2,
+        window.innerHeight / 2,
         "background-border"
       )
       .setInteractive();
     backgroundBorder.displayWidth = window.innerWidth;
-    backgroundBorder.displayHeight = window.innerHeight - 73;
+    backgroundBorder.displayHeight = window.innerHeight;
     this.assets.push(backgroundBorder);
   }
 }

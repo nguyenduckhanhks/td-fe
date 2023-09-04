@@ -4,6 +4,7 @@ export default class TextButton {
   private button: Phaser.GameObjects.Sprite;
   private scene: Phaser.Scene;
   private text: Phaser.GameObjects.Text;
+  private border?: Phaser.GameObjects.Rectangle;
 
   public get Text() {
     return this.text;
@@ -18,6 +19,8 @@ export default class TextButton {
     texture,
     onClick,
     scene,
+    depth,
+    border,
   }: {
     text: string;
     x: number;
@@ -27,6 +30,8 @@ export default class TextButton {
     texture?: string;
     onClick: Function;
     scene: Phaser.Scene;
+    depth?: number;
+    border?: boolean;
   }) {
     const btn = scene.add
       .sprite(x, y, texture ?? "btn-bg")
@@ -44,6 +49,15 @@ export default class TextButton {
       x - textComponent.width / 2,
       y - textComponent.height / 2
     );
+    if (depth && depth > 0) {
+      btn.setDepth(depth);
+      textComponent.setDepth(depth);
+    }
+    if (border) {
+      const bd = scene.add.rectangle(x, y, width ?? 100, heigh ?? 40);
+      this.border = bd;
+      this.border.setStrokeStyle(1, 0xffffff, 1);
+    }
     this.button = btn;
     this.text = textComponent;
     this.scene = scene;
@@ -51,5 +65,6 @@ export default class TextButton {
   public destroy() {
     this.button.destroy();
     this.text.destroy();
+    this.border?.destroy();
   }
 }

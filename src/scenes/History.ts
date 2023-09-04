@@ -2,15 +2,15 @@ import Phaser from "phaser";
 import api from "../services/api";
 import { TextButton } from "./components";
 
-export class MapStagesScene extends Phaser.Scene {
+export class HistoryScene extends Phaser.Scene {
   private customerInfo: any;
-  private mapInfos: any;
+  private gameInfos: any;
   private assets: any[] = [];
   private total: number = 0;
   private current: number = 0;
 
   constructor() {
-    super("mapstages");
+    super("history");
   }
 
   async init(data: any) {
@@ -20,7 +20,7 @@ export class MapStagesScene extends Phaser.Scene {
     this.current = 0;
     this.assets = [];
     this.total = 0;
-    this.mapInfos = [];
+    this.gameInfos = [];
     if (data && data.page) {
       this.current = data.page;
     }
@@ -55,11 +55,14 @@ export class MapStagesScene extends Phaser.Scene {
           {}
         );
         this.customerInfo = customerInfo;
-        const { mapInfos, total } = await api.post("/map/get-all", {
-          offset: this.current * 10,
-        });
+        const { towerDefenseGameInfos, total } = await api.post(
+          "/tower-defense/get-all",
+          {
+            offset: this.current * 10,
+          }
+        );
         this.total = total;
-        this.mapInfos = mapInfos;
+        this.gameInfos = towerDefenseGameInfos;
       }
     } catch (e) {
       window.alert(JSON.stringify(e));
@@ -73,15 +76,17 @@ export class MapStagesScene extends Phaser.Scene {
   update() {}
 
   private createMainMenu() {
-    this.mapInfos?.map((map: any, index: number) => {
+    this.gameInfos?.map((map: any, index: number) => {
       this.assets.push(
         new TextButton({
-          text: `map #${map.id}`,
+          text: `Game #${map.id}`,
           x: window.innerWidth / 2,
           y: window.innerHeight / 2 - 300 + 50 * index,
           width: 300,
           onClick: () => {
-            this.scene.start("setupstartgame", { id: map.id });
+            api.post("/tower-defense/get-by-id", { id: map.id }).then((res) => {
+              this.scene.start("gameplay", res);
+            });
           },
           scene: this,
         })
@@ -92,7 +97,7 @@ export class MapStagesScene extends Phaser.Scene {
         text: `Back`,
         texture: "err-btn-bg",
         x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 300 + 50 * (this.mapInfos.length ?? 0),
+        y: window.innerHeight / 2 - 300 + 50 * (this.gameInfos.length ?? 0),
         width: 300,
         onClick: () => {
           this.scene.start("mainmenu");
@@ -109,7 +114,7 @@ export class MapStagesScene extends Phaser.Scene {
             window.innerHeight / 2 -
             300 +
             100 +
-            50 * (this.mapInfos.length ?? 0) +
+            50 * (this.gameInfos.length ?? 0) +
             Math.floor(i / 6) * 50,
           width: 50,
           onClick: () => {
